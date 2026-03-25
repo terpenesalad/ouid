@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oui'd</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Condensed:wght@400;700&display=swap');
+
+  :root {
+    --bg:      #1a1a1a;
+    --bg2:     #222222;
+    --bg3:     #2a2a2a;
+    --bg4:     #333333;
+    --border:  #383838;
+    --border2: #444444;
+    --accent:  #5a9e6f;
+    --accent2: #3d7a52;
+    --accent3: #2d5c3d;
+    --text:    #dddddd;
+    --text2:   #999999;
+    --text3:   #666666;
+    --warn:    #c8a03a;
+    --red:     #c05050;
+    --blue:    #4a7fa8;
+    --sans:    'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --cond:    'Roboto Condensed', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 48px;
+    background: #1f1f1f;
+    border-bottom: 1px solid #111;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-family: var(--cond);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-actions { display: flex; gap: 6px; }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex;
+    background: #1c1c1c;
+    border-bottom: 1px solid #111;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex: 1;
+    padding: 11px 10px 9px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    white-space: nowrap;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid transparent;
+    transition: color 0.1s;
+  }
+  .nav-tab:hover { color: var(--text2); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main { padding: 12px; max-width: 860px; margin: 0 auto; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── PLANT GRID ── */
+  .plant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+
+  .plant-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+    position: relative;
+  }
+  .plant-card:active { background: var(--bg3); }
+
+  .plant-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .plant-id {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 1px;
+  }
+  .plant-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .stage-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stage-badge.seedling { background: #1a3320; color: #6abf80; }
+  .stage-badge.veg      { background: #1e3d28; color: var(--accent); }
+  .stage-badge.flower   { background: #2d2040; color: #9d7fd4; }
+  .stage-badge.flush    { background: #332d18; color: #b8982a; }
+  .stage-badge.harvest  { background: #331e1e; color: #b86060; }
+
+  .plant-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .stat {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 5px 8px;
+  }
+  .stat-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1px; }
+  .stat-value { font-size: 15px; color: var(--text); font-weight: 400; }
+  .stat-value.ok   { color: var(--accent); }
+  .stat-value.warn { color: var(--warn); }
+  .stat-value.bad  { color: var(--red); }
+
+  .vpd-bar-wrap { margin-bottom: 10px; }
+  .vpd-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text3);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .vpd-bar {
+    height: 3px;
+    background: var(--bg4);
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .vpd-fill {
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .vpd-zone-ok   { background: var(--accent); }
+  .vpd-zone-low  { background: var(--warn); }
+  .vpd-zone-high { background: var(--red); }
+
+  .plant-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text3);
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+  }
+  .concern-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--warn);
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .add-plant-card {
+    background: var(--bg2);
+    border: 1px dashed var(--border2);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    gap: 6px;
+    min-height: 120px;
+    transition: background 0.1s;
+  }
+  .add-plant-card:hover { background: var(--bg3); color: var(--text2); }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0 8px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 13px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: background 0.1s;
+  }
+  .btn-primary {
+    background: var(--accent2);
+    color: #e8f0ea;
+    border-color: var(--accent3);
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text2);
+    border-color: var(--border2);
+  }
+  .btn-ghost:hover { background: var(--bg4); color: var(--text); }
+  .btn-danger {
+    background: none;
+    color: var(--red);
+    border-color: #4a2020;
+  }
+  .btn-danger:hover { background: #2a1515; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 4px 6px;
+    font-size: 15px;
+    transition: color 0.1s;
+  }
+  .btn-icon:hover { color: var(--text); }
+
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 12px; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 7px 10px;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent2);
+    background: #2d2d2d;
+  }
+  .form-select { appearance: none; cursor: pointer; }
+  .form-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    width: 100%;
+    max-width: 500px;
+    padding: 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #1f1f1f;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .modal-body { padding: 16px; }
+  .modal-footer {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: #1f1f1f;
+  }
+
+  /* ── DETAIL VIEW ── */
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-photo {
+    width: 64px; height: 64px;
+    border-radius: 2px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .detail-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-meta { flex: 1; min-width: 0; }
+  .detail-name { font-size: 18px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+  .detail-strain { font-size: 12px; color: var(--text2); margin-bottom: 7px; }
+  .detail-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .metric-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 8px 10px;
+  }
+  .metric-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .metric-value { font-size: 20px; color: var(--text); font-weight: 300; line-height: 1.1; }
+  .metric-unit  { font-size: 11px; color: var(--text3); margin-left: 1px; }
+
+  /* ── PANELS ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 9px 12px;
+    background: #202020;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .panel-body { padding: 12px; }
+  .panel-toggle { color: var(--text3); font-size: 9px; }
+  .panel.collapsed .panel-body { display: none; }
+
+  /* ── JOURNAL ── */
+  .journal-entry {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .journal-entry:last-child { border-bottom: none; }
+  .journal-date { font-size: 10px; color: var(--text3); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .journal-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .journal-tags-row { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+  .journal-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 1px;
+    background: var(--accent3);
+    color: #7bc48a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── SCHEDULE TABLE ── */
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .schedule-table th {
+    text-align: left;
+    color: var(--text3);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 7px 10px;
+    background: #1e1e1e;
+    border-bottom: 1px solid var(--border);
+  }
+  .schedule-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .schedule-table tr:last-child td { border-bottom: none; }
+  .schedule-table tr:hover td { background: var(--bg3); }
+
+  /* ── TRAINING LOG ── */
+  .training-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .training-row:last-child { border-bottom: none; }
+  .training-date { color: var(--text3); font-size: 10px; min-width: 76px; text-transform: uppercase; letter-spacing: 0.04em; padding-top: 2px; }
+  .training-type {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 1px;
+    background: #201e30;
+    color: #9070c0;
+    border: 1px solid #302850;
+    min-width: 58px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .training-note { color: var(--text2); flex: 1; }
+
+  /* ── REMINDERS ── */
+  .reminder-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .reminder-item:last-child { border-bottom: none; }
+  .reminder-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .reminder-dot.water  { background: var(--blue); }
+  .reminder-dot.feed   { background: var(--accent); }
+  .reminder-dot.check  { background: var(--warn); }
+  .reminder-dot.train  { background: #9070c0; }
+  .reminder-info { flex: 1; }
+  .reminder-name { font-size: 13px; color: var(--text); }
+  .reminder-due  { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .reminder-due.overdue { color: var(--red); }
+
+  /* ── DASHBOARD ── */
+  .dash-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .dash-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 12px;
+  }
+  .dash-card-title { font-size: 10px; font-weight: 700; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.07em; }
+  .dash-num { font-size: 36px; color: var(--text); font-weight: 300; line-height: 1; }
+  .dash-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  /* ── CONCERN STRIP ── */
+  .concern-strip {
+    background: #2a1818;
+    border-left: 3px solid var(--red);
+    border-top: 1px solid #3a2020;
+    border-bottom: 1px solid #3a2020;
+    border-right: 1px solid #3a2020;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: #cc7777;
+    border-radius: 1px;
+  }
+
+  /* ── PHOTO GRID ── */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 5px;
+  }
+  .photo-thumb {
+    aspect-ratio: 1;
+    border-radius: 1px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3);
+    font-size: 11px;
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-add { border: 1px dashed var(--border2); }
+  .photo-add:hover { border-color: var(--text3); }
+
+  /* ── VPD GAUGE ── */
+  .vpd-info {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .vpd-range-bar {
+    height: 6px;
+    border-radius: 1px;
+    background: linear-gradient(to right, #3a3a80 0%, var(--warn) 28%, var(--accent) 48%, var(--accent) 65%, var(--red) 82%, #6a1818 100%);
+    position: relative;
+    margin: 8px 0 5px;
+  }
+  .vpd-pointer {
+    position: absolute;
+    top: -4px;
+    width: 2px;
+    height: 14px;
+    background: #fff;
+    transform: translateX(-50%);
+    transition: left 0.4s;
+  }
+  .vpd-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text3);
+    font-family: var(--sans);
+  }
+
+  /* ── HARVEST PANEL ── */
+  .harvest-row {
+    display: flex;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    align-items: baseline;
+  }
+  .harvest-row:last-child { border-bottom: none; }
+  .harvest-label { color: var(--text3); min-width: 120px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .harvest-val   { color: var(--text); }
+
+  /* ── MISC ── */
+  .empty-state {
+    padding: 28px 16px;
+    color: var(--text3);
+    font-size: 13px;
+    text-align: center;
+  }
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 500; color: var(--accent2);
+    cursor: pointer; margin-bottom: 12px;
+    background: none; border: none;
+    font-family: var(--sans);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .back-btn:hover { color: var(--accent); }
+  input[type="file"] { display: none; }
+
+  .checkrow {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .checkrow input { accent-color: var(--accent); }
+
+  /* ── LOCK SCREEN ── */
+  #lock-screen {
+    position: fixed; inset: 0;
+    background: #111;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  #lock-screen.hidden { display: none; }
+  .lock-logo {
+    font-family: var(--cond);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .lock-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 24px 28px;
+    width: 280px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .lock-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .lock-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    padding: 8px 10px;
+    outline: none;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+  .lock-input:focus { border-color: var(--accent2); }
+  .lock-btn {
+    width: 100%;
+    background: var(--accent2);
+    color: #e8f0ea;
+    border: 1px solid var(--accent3);
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 9px;
+    cursor: pointer;
+  }
+  .lock-btn:hover { background: var(--accent); }
+  .lock-error {
+    font-size: 11px;
+    color: var(--red);
+    margin-top: 8px;
+    min-height: 16px;
+    text-align: center;
+  }
+  .lock-hint {
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lock-screen">
+  <div class="lock-logo">Oui'd</div>
+  <div class="lock-box">
+    <label class="lock-label" for="lock-input">Password</label>
+    <input class="lock-input" id="lock-input" type="password" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="lock-btn" onclick="unlock()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+  <div class="lock-hint">Your data stays on this device.</div>
+</div>
+
+<header>
+  <div class="logo">Oui'd</div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="exportData()">Export</button>
+    <button class="btn btn-primary btn-sm" onclick="openAddPlant()">+ Plant</button>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-tab active" onclick="switchTab('overview')" id="tab-overview">Overview</button>
+  <button class="nav-tab" onclick="switchTab('plants')" id="tab-plants">Plants</button>
+  <button class="nav-tab" onclick="switchTab('reminders')" id="tab-reminders">Reminders</button>
+  <button class="nav-tab" onclick="switchTab('schedule')" id="tab-schedule">Schedule</button>
+</nav>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <div class="view active" id="view-overview">
+    <div id="overview-concerns"></div>
+    <div class="dash-row" id="dash-stats"></div>
+    <div class="section-header" style="margin-top:8px;">
+      <span class="section-title">Active plants</span>
+    </div>
+    <div class="plant-grid" id="overview-plant-grid"></div>
+  </div>
+
+  <!-- PLANTS LIST -->
+  <div class="view" id="view-plants">
+    <div class="section-header">
+      <span class="section-title">All plants</span>
+    </div>
+    <div class="plant-grid" id="plants-grid"></div>
+  </div>
+
+  <!-- PLANT DETAIL -->
+  <div class="view" id="view-detail">
+    <button class="back-btn" onclick="backToPlants()">← Back</button>
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- REMINDERS -->
+  <div class="view" id="view-reminders">
+    <div class="section-header">
+      <span class="section-title">Upcoming</span>
+      <button class="btn btn-ghost btn-sm" onclick="openAddReminder()">+ Add</button>
+    </div>
+    <div class="panel">
+      <div class="panel-body" id="reminders-list"></div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="view" id="view-schedule">
+    <div class="section-header">
+      <span class="section-title">Nutrient &amp; watering schedule</span>
+      <button class="btn btn-ghost btn-sm" onclick="openAddSchedule()">+ Add</button>
+    </div>
+    <div class="panel">
+      <div class="panel-body" style="padding:0">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Stage</th>
+              <th>Water (L)</th>
+              <th>Nutrients</th>
+              <th>pH target</th>
+              <th>EC/PPM</th>
+              <th>Repeat</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="schedule-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- ADD / EDIT PLANT -->
+<div class="modal-overlay" id="modal-plant">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="plant-modal-title">New plant</span>
+      <button class="btn-icon" onclick="closeModal('modal-plant')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Plant name / ID</label>
+        <input class="form-input" id="f-name" placeholder="e.g. P-01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Strain</label>
+        <input class="form-input" id="f-strain" placeholder="e.g. White Widow">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Grow stage</label>
+        <select class="form-select" id="f-stage">
+          <option value="seedling">Seedling</option>
+          <option value="veg">Vegetative</option>
+          <option value="flower">Flower</option>
+          <option value="flush">Flush</option>
+          <option value="harvest">Harvest</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Germination date</label>
+        <input class="form-input" type="date" id="f-germ">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label class="form-label">Light cycle</label>
+        <select class="form-select" id="f-light">
+          <option value="24/0">24/0</option>
+          <option value="20/4">20/4</option>
+          <option value="18/6">18/6</option>
+          <option value="16/8">16/8</option>
+          <option value="12/12">12/12</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Medium</label>
+        <select class="form-select" id="f-medium">
+          <option value="soil">Soil</option>
+          <option value="coco">Coco Coir</option>
+          <option value="hydro">Hydro</option>
+          <option value="rdwc">RDWC</option>
+          <option value="aero">Aeroponics</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pot size (L)</label>
+        <input class="form-input" id="f-pot" type="number" placeholder="11">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Temp (°C)</label>
+        <input class="form-input" id="f-temp" type="number" placeholder="24">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Humidity (%)</label>
+        <input class="form-input" id="f-humidity" type="number" placeholder="55">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label class="form-label">pH</label>
+        <input class="form-input" id="f-ph" type="number" step="0.1" placeholder="6.2">
+      </div>
+      <div class="form-group">
+        <label class="form-label">EC (mS/cm)</label>
+        <input class="form-input" id="f-ec" type="number" step="0.1" placeholder="1.4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Moisture (%)</label>
+        <input class="form-input" id="f-moisture" type="number" placeholder="65">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Concerns / notes</label>
+      <textarea class="form-textarea" id="f-concerns" placeholder="Any issues, observations..."></textarea>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-plant')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePlant()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD JOURNAL ENTRY -->
+<div class="modal-overlay" id="modal-journal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Journal entry</span>
+      <button class="btn-icon" onclick="closeModal('modal-journal')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" type="date" id="j-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <textarea class="form-textarea" id="j-text" placeholder="What happened today..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <label class="checkrow"><input type="checkbox" value="watered"> Watered</label>
+        <label class="checkrow"><input type="checkbox" value="fed"> Fed</label>
+        <label class="checkrow"><input type="checkbox" value="trained"> Trained</label>
+        <label class="checkrow"><input type="checkbox" value="transplanted"> Transplanted</label>
+        <label class="checkrow"><input type="checkbox" value="defoliated"> Defoliated</label>
+        <label class="checkrow"><input type="checkbox" value="flushed"> Flushed</label>
+        <label class="checkrow"><input type="checkbox" value="issue"> Issue noted</label>
+      </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-journal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveJournalEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TRAINING -->
+<div class="modal-overlay" id="modal-training">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log training</span>
+      <button class="btn-icon" onclick="closeModal('modal-training')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date" id="tr-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="tr-type">
+          <option value="TOP">Topping</option>
+          <option value="FIM">FIM</option>
+          <option value="LST">LST</option>
+          <option value="SCROG">SCROG</option>
+          <option value="DEFOL">Defoliation</option>
+          <option value="SUPER">Supercropping</option>
+          <option value="MAINLINE">Mainlining</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="tr-note" placeholder="Details..."></textarea>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-training')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTraining()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD REMINDER -->
+<div class="modal-overlay" id="modal-reminder">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add reminder</span>
+      <button class="btn-icon" onclick="closeModal('modal-reminder')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label">Label</label>
+      <input class="form-input" id="r-label" placeholder="e.g. Water P-01">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Due date</label>
+        <input class="form-input" type="date" id="r-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="r-type">
+          <option value="water">Watering</option>
+          <option value="feed">Feeding</option>
+          <option value="check">Check / Inspect</option>
+          <option value="train">Training</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Repeat every</label>
+        <input class="form-input" id="r-repeat" type="number" min="0" placeholder="0 = no repeat">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit</label>
+        <select class="form-select" id="r-repeat-unit">
+          <option value="days">Days</option>
+          <option value="weeks">Weeks</option>
+        </select>
+      </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reminder')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveReminder()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SCHEDULE -->
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add schedule entry</span>
+      <button class="btn-icon" onclick="closeModal('modal-schedule')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Week</label>
+        <input class="form-input" id="sc-week" type="number" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage</label>
+        <select class="form-select" id="sc-stage">
+          <option value="seedling">Seedling</option>
+          <option value="veg">Veg</option>
+          <option value="flower">Flower</option>
+          <option value="flush">Flush</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Water (L)</label>
+        <input class="form-input" id="sc-water" type="number" step="0.1" placeholder="0.5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">pH target</label>
+        <input class="form-input" id="sc-ph" type="number" step="0.1" placeholder="6.2">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">EC (mS/cm)</label>
+        <input class="form-input" id="sc-ec" type="number" step="0.1" placeholder="1.4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nutrients</label>
+        <input class="form-input" id="sc-nutes" placeholder="Grow A+B, CalMag">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Repeat every</label>
+        <input class="form-input" id="sc-repeat" type="number" min="0" placeholder="0 = one-off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit</label>
+        <select class="form-select" id="sc-repeat-unit">
+          <option value="days">Days</option>
+          <option value="weeks">Weeks</option>
+        </select>
+      </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-schedule')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveScheduleEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- HARVEST LOG -->
+<div class="modal-overlay" id="modal-harvest">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log harvest</span>
+      <button class="btn-icon" onclick="closeModal('modal-harvest')">✕</button>
+    </div>
+    <div class="modal-body">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Harvest date</label>
+        <input class="form-input" type="date" id="h-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wet weight (g)</label>
+        <input class="form-input" id="h-wet" type="number" placeholder="450">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Dry weight (g)</label>
+        <input class="form-input" id="h-dry" type="number" placeholder="90">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cure complete date</label>
+        <input class="form-input" type="date" id="h-cure">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="h-notes" placeholder="Terpene profile, bag appeal, effects..."></textarea>
+    </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-harvest')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveHarvest()">Save</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photo-upload" accept="image/*">
+
+<script>
+// ── LOCK SCREEN ────────────────────────────────────────
+function unlock() {}
+function checkLock() {
+  document.getElementById('lock-screen').classList.add('hidden');
+}
+let state = {
+  plants: [],
+  reminders: [],
+  schedule: [],
+};
+let editingPlantId = null;
+let currentPlantId = null;
+let prevView = 'plants';
+
+function load() {
+  const saved = localStorage.getItem('growlog_v2');
+  if (saved) {
+    try { state = JSON.parse(saved); }
+    catch(e) { console.warn('load error', e); }
+  }
+}
+
+function save() {
+  localStorage.setItem('growlog_v2', JSON.stringify(state));
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function daysAgo(dateStr) {
+  if (!dateStr) return 0;
+  return Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+// ── VPD ────────────────────────────────────────────────
+// VPD (kPa) = saturation vapour pressure × (1 - RH/100)
+// SVP (kPa) = 0.6108 × e^(17.27×T / (T+237.3))
+function calcVPD(tempC, rh) {
+  if (!tempC || !rh) return null;
+  const svp = 0.6108 * Math.exp(17.27 * tempC / (tempC + 237.3));
+  return +(svp * (1 - rh / 100)).toFixed(2);
+}
+
+function vpdStatus(vpd, stage) {
+  if (!vpd) return { label: '—', cls: '' };
+  // Ideal ranges: seedling 0.4-0.8, veg 0.8-1.2, flower 1.0-1.5
+  const ranges = {
+    seedling: [0.4, 0.8],
+    veg:      [0.8, 1.2],
+    flower:   [1.0, 1.5],
+    flush:    [0.8, 1.3],
+    harvest:  [0.8, 1.5],
+  };
+  const [lo, hi] = ranges[stage] || [0.8, 1.3];
+  if (vpd < lo) return { label: `${vpd} ↓`, cls: 'warn' };
+  if (vpd > hi) return { label: `${vpd} ↑`, cls: 'bad' };
+  return { label: `${vpd}`, cls: 'ok' };
+}
+
+function vpdPercent(vpd) {
+  // Scale 0–2.5 kPa to 0–100%
+  return Math.min(100, Math.max(0, (vpd / 2.5) * 100));
+}
+
+function vpdFillClass(vpd) {
+  if (vpd < 0.4) return 'vpd-zone-low';
+  if (vpd > 1.5) return 'vpd-zone-high';
+  return 'vpd-zone-ok';
+}
+
+// ── TABS ───────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'overview') renderOverview();
+  if (tab === 'plants') renderPlants();
+  if (tab === 'reminders') renderReminders();
+  if (tab === 'schedule') renderSchedule();
+}
+
+// ── PLANT CARD HTML ────────────────────────────────────
+function plantCardHTML(p) {
+  const age = daysAgo(p.germDate);
+  const vpd = calcVPD(p.temp, p.humidity);
+  const vs = vpdStatus(vpd, p.stage);
+  const vpdW = vpd ? vpdPercent(vpd) : 0;
+  const vpdClass = vpd ? vpdFillClass(vpd) : '';
+  const moisture = p.moisture || '—';
+  const mClass = p.moisture ? (p.moisture < 30 ? 'bad' : p.moisture > 80 ? 'warn' : 'ok') : '';
+  const ph = p.ph || '—';
+  const phClass = p.ph ? (p.ph < 5.5 || p.ph > 7.0 ? 'bad' : (p.ph < 5.8 || p.ph > 6.8 ? 'warn' : 'ok')) : '';
+  const hasConcern = p.concerns && p.concerns.trim().length > 0;
+
+  return `
+  <div class="plant-card" onclick="openPlant('${p.id}')">
+    <div class="plant-card-header">
+      <div>
+        <div class="plant-id">${p.id || '—'}</div>
+        <div class="plant-name">${p.name}</div>
+      </div>
+      <div class="stage-badge ${p.stage}">${p.stage.toUpperCase()}</div>
+    </div>
+    <div class="plant-stats">
+      <div class="stat">
+        <div class="stat-label">AGE</div>
+        <div class="stat-value">${age}d</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">MOISTURE</div>
+        <div class="stat-value ${mClass}">${moisture}${p.moisture ? '%' : ''}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">TEMP</div>
+        <div class="stat-value">${p.temp ? p.temp + '°' : '—'}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">STAGE</div>
+        <div class="stat-value" style="font-size:12px;text-transform:uppercase">${p.stage || '—'}</div>
+      </div>
+    </div>
+    ${vpd !== null ? `
+    <div class="vpd-bar-wrap">
+      <div class="vpd-label-row"><span>VPD</span><span class="${vs.cls}">${vs.label} kPa</span></div>
+      <div class="vpd-bar"><div class="vpd-fill ${vpdClass}" style="width:${vpdW}%"></div></div>
+    </div>` : ''}
+    <div class="plant-card-footer">
+      <span>${p.strain || 'Unknown strain'} · ${p.lightCycle || '—'}</span>
+      <span>${hasConcern ? '<span class="concern-dot"></span>Concern' : ''}</span>
+    </div>
+  </div>`;
+}
+
+// ── OVERVIEW ───────────────────────────────────────────
+function renderOverview() {
+  const active = state.plants.filter(p => p.stage !== 'harvest');
+  const concerns = state.plants.filter(p => p.concerns && p.concerns.trim());
+
+  const cEl = document.getElementById('overview-concerns');
+  cEl.innerHTML = concerns.map(p => `
+    <div class="concern-strip">
+      <span>⚠</span>
+      <span><strong>${p.name}</strong> — ${p.concerns}</span>
+    </div>`).join('');
+
+  const stats = document.getElementById('dash-stats');
+  const totalHarvest = state.plants.filter(p => p.harvest).reduce((a, p) => a + (p.harvest.dry || 0), 0);
+  stats.innerHTML = `
+    <div class="dash-card">
+      <div class="dash-card-title">Active plants</div>
+      <div class="dash-num">${active.length}</div>
+      <div class="dash-sub">${state.plants.length} total tracked</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Total yield</div>
+      <div class="dash-num">${totalHarvest}g</div>
+      <div class="dash-sub">dry weight across harvests</div>
+    </div>`;
+
+  const grid = document.getElementById('overview-plant-grid');
+  grid.innerHTML = active.map(plantCardHTML).join('') +
+    `<div class="add-plant-card" onclick="openAddPlant()"><span style="font-size:20px;color:var(--accent2)">+</span> New plant</div>`;
+}
+
+// ── PLANTS ─────────────────────────────────────────────
+function renderPlants() {
+  const grid = document.getElementById('plants-grid');
+  grid.innerHTML = state.plants.map(plantCardHTML).join('') +
+    `<div class="add-plant-card" onclick="openAddPlant()"><span style="font-size:20px;color:var(--accent2)">+</span> New plant</div>`;
+}
+
+// ── PLANT DETAIL ───────────────────────────────────────
+function openPlant(id) {
+  currentPlantId = id;
+  prevView = document.querySelector('.nav-tab.active').id.replace('tab-', '');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-detail').classList.add('active');
+  renderDetail(id);
+}
+
+function backToPlants() {
+  switchTab(prevView);
+  currentPlantId = null;
+}
+
+function renderDetail(id) {
+  const p = state.plants.find(x => x.id === id);
+  if (!p) return;
+
+  const age = daysAgo(p.germDate);
+  const vpd = calcVPD(p.temp, p.humidity);
+  const vs = vpdStatus(vpd, p.stage);
+  const vpdW = vpd ? vpdPercent(vpd) : 50;
+  const photos = p.photos || [];
+
+  const journalHTML = (p.journal || []).slice().reverse().map(j => `
+    <div class="journal-entry">
+      <div class="journal-date">${formatDate(j.date)}</div>
+      <div class="journal-text">${j.text}</div>
+      ${j.tags && j.tags.length ? `<div class="journal-tags-row">${j.tags.map(t => `<span class="journal-tag">${t}</span>`).join('')}</div>` : ''}
+    </div>`).join('') || '<div class="empty-state">No entries yet.</div>';
+
+  const trainingHTML = (p.training || []).slice().reverse().map(t => `
+    <div class="training-row">
+      <span class="training-date">${formatDate(t.date)}</span>
+      <span class="training-type">${t.type}</span>
+      <span class="training-note">${t.note || ''}</span>
+    </div>`).join('') || '<div class="empty-state">No training logged.</div>';
+
+  const harvestSection = p.harvest ? `
+    <div class="harvest-row"><span class="harvest-label">Harvest date</span><span class="harvest-val">${formatDate(p.harvest.date)}</span></div>
+    <div class="harvest-row"><span class="harvest-label">Wet weight</span><span class="harvest-val">${p.harvest.wet || '—'}g</span></div>
+    <div class="harvest-row"><span class="harvest-label">Dry weight</span><span class="harvest-val">${p.harvest.dry || '—'}g</span></div>
+    <div class="harvest-row"><span class="harvest-label">Cure complete</span><span class="harvest-val">${formatDate(p.harvest.cure)}</span></div>
+    ${p.harvest.notes ? `<div class="harvest-row"><span class="harvest-label">Notes</span><span class="harvest-val">${p.harvest.notes}</span></div>` : ''}
+  ` : '<div class="empty-state">Not harvested yet.</div>';
+
+  const photosHTML = photos.map(ph => `
+    <div class="photo-thumb"><img src="${ph}" onclick="event.stopPropagation()"></div>`).join('') +
+    `<div class="photo-thumb photo-add" onclick="triggerPhotoUpload()">+ Photo</div>`;
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-photo" onclick="triggerPhotoUpload()">
+        ${photos.length ? `<img src="${photos[photos.length-1]}">` : '🌿'}
+      </div>
+      <div class="detail-meta">
+        <div class="detail-name">${p.name}</div>
+        <div class="detail-strain">${p.strain || 'Unknown strain'} · ${p.medium || '—'} · ${p.potSize ? p.potSize + 'L pot' : '—'}</div>
+        <div class="detail-tags">
+          <span class="stage-badge ${p.stage}">${p.stage.charAt(0).toUpperCase() + p.stage.slice(1)}</span>
+          <span class="tag">${age}d old</span>
+          <span class="tag">${p.lightCycle || '—'} light</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="openEditPlant('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePlant('${p.id}')">Delete</button>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Temp</div>
+        <div class="metric-value">${p.temp || '—'}<span class="metric-unit">°C</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Humidity</div>
+        <div class="metric-value">${p.humidity || '—'}<span class="metric-unit">%</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">VPD</div>
+        <div class="metric-value" style="color:var(--${vs.cls === 'ok' ? 'accent' : vs.cls === 'warn' ? 'warn' : 'red'})">${vpd !== null ? vpd : '—'}<span class="metric-unit">kPa</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">pH</div>
+        <div class="metric-value">${p.ph || '—'}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">EC</div>
+        <div class="metric-value">${p.ec || '—'}<span class="metric-unit">mS</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Moisture</div>
+        <div class="metric-value">${p.moisture || '—'}<span class="metric-unit">${p.moisture ? '%' : ''}</span></div>
+      </div>
+    </div>
+
+    ${vpd !== null ? `
+    <div class="panel" style="margin-bottom:12px;">
+      <div class="panel-body">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">VPD — Vapour pressure deficit</div>
+        <div class="vpd-range-bar">
+          <div class="vpd-pointer" style="left:${vpdW}%"></div>
+        </div>
+        <div class="vpd-scale"><span>0</span><span>0.4</span><span>0.8</span><span>1.2</span><span>1.6</span><span>2.0</span><span>2.5</span></div>
+        <div class="vpd-info">
+          Current: <strong style="color:var(--${vs.cls === 'ok' ? 'accent' : vs.cls === 'warn' ? 'warn' : 'red'})">${vpd} kPa</strong>
+          ${vs.cls === 'ok' ? '— optimal for ' + p.stage : vs.cls === 'warn' ? '— below optimal · increase temp or lower humidity' : '— above optimal · lower temp or increase humidity'}
+        </div>
+      </div>
+    </div>` : ''}
+
+    ${p.concerns ? `<div class="concern-strip"><span>⚠</span><span>${p.concerns}</span></div>` : ''}
+
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <span class="panel-title">Photos</span>
+        <span class="panel-toggle">▼</span>
+      </div>
+      <div class="panel-body">
+        <div class="photo-grid">${photosHTML}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <span class="panel-title">Daily journal</span>
+        <span class="panel-toggle">▼</span>
+      </div>
+      <div class="panel-body">
+        <div style="margin-bottom:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="openJournal('${p.id}')">+ Add entry</button>
+        </div>
+        ${journalHTML}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <span class="panel-title">Training log</span>
+        <span class="panel-toggle">▼</span>
+      </div>
+      <div class="panel-body">
+        <div style="margin-bottom:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="openTraining('${p.id}')">+ Log</button>
+        </div>
+        ${trainingHTML}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <span class="panel-title">Harvest record</span>
+        <span class="panel-toggle">▼</span>
+      </div>
+      <div class="panel-body">
+        <div style="margin-bottom:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="openHarvest('${p.id}')">+ Log harvest</button>
+        </div>
+        ${harvestSection}
+      </div>
+    </div>
+  `;
+}
+
+function togglePanel(header) {
+  header.parentElement.classList.toggle('collapsed');
+  header.querySelector('.panel-toggle').textContent =
+    header.parentElement.classList.contains('collapsed') ? '▶' : '▼';
+}
+
+// ── ADD / EDIT PLANT ───────────────────────────────────
+function openAddPlant() {
+  editingPlantId = null;
+  document.getElementById('plant-modal-title').textContent = 'New plant';
+  ['name','strain','temp','humidity','ph','ec','moisture','pot','concerns'].forEach(f => {
+    document.getElementById('f-'+f).value = '';
+  });
+  document.getElementById('f-stage').value = 'veg';
+  document.getElementById('f-light').value = '18/6';
+  document.getElementById('f-medium').value = 'soil';
+  document.getElementById('f-germ').value = today();
+  openModal('modal-plant');
+}
+
+function openEditPlant(id) {
+  const p = state.plants.find(x => x.id === id);
+  if (!p) return;
+  editingPlantId = id;
+  document.getElementById('plant-modal-title').textContent = 'Edit plant';
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-strain').value = p.strain || '';
+  document.getElementById('f-stage').value = p.stage || 'veg';
+  document.getElementById('f-germ').value = p.germDate || '';
+  document.getElementById('f-light').value = p.lightCycle || '18/6';
+  document.getElementById('f-medium').value = p.medium || 'soil';
+  document.getElementById('f-pot').value = p.potSize || '';
+  document.getElementById('f-temp').value = p.temp || '';
+  document.getElementById('f-humidity').value = p.humidity || '';
+  document.getElementById('f-ph').value = p.ph || '';
+  document.getElementById('f-ec').value = p.ec || '';
+  document.getElementById('f-moisture').value = p.moisture || '';
+  document.getElementById('f-concerns').value = p.concerns || '';
+  openModal('modal-plant');
+}
+
+function savePlant() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) return;
+  const data = {
+    name,
+    strain:     document.getElementById('f-strain').value.trim(),
+    stage:      document.getElementById('f-stage').value,
+    germDate:   document.getElementById('f-germ').value,
+    lightCycle: document.getElementById('f-light').value,
+    medium:     document.getElementById('f-medium').value,
+    potSize:    document.getElementById('f-pot').value,
+    temp:       parseFloat(document.getElementById('f-temp').value) || null,
+    humidity:   parseFloat(document.getElementById('f-humidity').value) || null,
+    ph:         parseFloat(document.getElementById('f-ph').value) || null,
+    ec:         parseFloat(document.getElementById('f-ec').value) || null,
+    moisture:   parseFloat(document.getElementById('f-moisture').value) || null,
+    concerns:   document.getElementById('f-concerns').value.trim(),
+  };
+
+  if (editingPlantId) {
+    const idx = state.plants.findIndex(x => x.id === editingPlantId);
+    state.plants[idx] = { ...state.plants[idx], ...data };
+  } else {
+    data.id = 'P-' + String(state.plants.length + 1).padStart(2,'0');
+    data.photos = [];
+    data.journal = [];
+    data.training = [];
+    state.plants.push(data);
+  }
+
+  save();
+  closeModal('modal-plant');
+  if (currentPlantId) renderDetail(currentPlantId);
+  else renderOverview();
+}
+
+function deletePlant(id) {
+  if (!confirm('Delete this plant? This cannot be undone.')) return;
+  state.plants = state.plants.filter(x => x.id !== id);
+  save();
+  backToPlants();
+}
+
+// ── JOURNAL ────────────────────────────────────────────
+function openJournal(id) {
+  currentPlantId = id;
+  document.getElementById('j-date').value = today();
+  document.getElementById('j-text').value = '';
+  document.querySelectorAll('#modal-journal input[type=checkbox]').forEach(c => c.checked = false);
+  openModal('modal-journal');
+}
+
+function saveJournalEntry() {
+  const text = document.getElementById('j-text').value.trim();
+  if (!text) return;
+  const tags = [...document.querySelectorAll('#modal-journal input[type=checkbox]:checked')].map(c => c.value);
+  const p = state.plants.find(x => x.id === currentPlantId);
+  if (!p) return;
+  if (!p.journal) p.journal = [];
+  p.journal.push({ date: document.getElementById('j-date').value, text, tags });
+  save();
+  closeModal('modal-journal');
+  renderDetail(currentPlantId);
+}
+
+// ── TRAINING ───────────────────────────────────────────
+function openTraining(id) {
+  currentPlantId = id;
+  document.getElementById('tr-date').value = today();
+  document.getElementById('tr-note').value = '';
+  openModal('modal-training');
+}
+
+function saveTraining() {
+  const p = state.plants.find(x => x.id === currentPlantId);
+  if (!p) return;
+  if (!p.training) p.training = [];
+  p.training.push({
+    date: document.getElementById('tr-date').value,
+    type: document.getElementById('tr-type').value,
+    note: document.getElementById('tr-note').value.trim(),
+  });
+  save();
+  closeModal('modal-training');
+  renderDetail(currentPlantId);
+}
+
+// ── HARVEST ────────────────────────────────────────────
+function openHarvest(id) {
+  currentPlantId = id;
+  document.getElementById('h-date').value = today();
+  ['h-wet','h-dry','h-notes','h-cure'].forEach(f => document.getElementById(f).value = '');
+  openModal('modal-harvest');
+}
+
+function saveHarvest() {
+  const p = state.plants.find(x => x.id === currentPlantId);
+  if (!p) return;
+  p.harvest = {
+    date: document.getElementById('h-date').value,
+    wet:  parseFloat(document.getElementById('h-wet').value) || null,
+    dry:  parseFloat(document.getElementById('h-dry').value) || null,
+    cure: document.getElementById('h-cure').value,
+    notes: document.getElementById('h-notes').value.trim(),
+  };
+  p.stage = 'harvest';
+  save();
+  closeModal('modal-harvest');
+  renderDetail(currentPlantId);
+}
+
+// ── REMINDERS ──────────────────────────────────────────
+function openAddReminder() {
+  document.getElementById('r-label').value = '';
+  document.getElementById('r-date').value = today();
+  document.getElementById('r-repeat').value = '';
+  document.getElementById('r-repeat-unit').value = 'days';
+  openModal('modal-reminder');
+}
+
+function saveReminder() {
+  const label = document.getElementById('r-label').value.trim();
+  if (!label) return;
+  const repeatEvery = parseInt(document.getElementById('r-repeat').value) || 0;
+  const repeatUnit  = document.getElementById('r-repeat-unit').value;
+  state.reminders.push({
+    id: uid(),
+    label,
+    date: document.getElementById('r-date').value,
+    type: document.getElementById('r-type').value,
+    done: false,
+    repeatEvery,
+    repeatUnit,
+  });
+  save();
+  closeModal('modal-reminder');
+  renderReminders();
+}
+
+function nextOccurrence(dateStr, repeatEvery, repeatUnit) {
+  const d = new Date(dateStr);
+  if (repeatUnit === 'weeks') d.setDate(d.getDate() + repeatEvery * 7);
+  else d.setDate(d.getDate() + repeatEvery);
+  return d.toISOString().split('T')[0];
+}
+
+function renderReminders() {
+  const sorted = [...state.reminders].sort((a,b) => a.date.localeCompare(b.date));
+  const el = document.getElementById('reminders-list');
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty-state">No reminders set.</div>';
+    return;
+  }
+  el.innerHTML = sorted.map(r => {
+    const overdue = r.date < today() && !r.done;
+    const repeatLabel = r.repeatEvery ? `↻ every ${r.repeatEvery} ${r.repeatUnit}` : '';
+    return `<div class="reminder-item" style="${r.done ? 'opacity:.4' : ''}">
+      <div class="reminder-dot ${r.type}"></div>
+      <div class="reminder-info">
+        <div class="reminder-name">${r.label}</div>
+        <div class="reminder-due ${overdue ? 'overdue' : ''}">${formatDate(r.date)}${overdue ? ' · Overdue' : ''}${repeatLabel ? ' <span style="color:var(--text3);font-size:10px">' + repeatLabel + '</span>' : ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        ${!r.done ? `<button class="btn btn-ghost btn-sm" onclick="doneReminder('${r.id}')">Done</button>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deleteReminder('${r.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function doneReminder(id) {
+  const r = state.reminders.find(x => x.id === id);
+  if (!r) return;
+  if (r.repeatEvery && r.repeatEvery > 0) {
+    // reschedule instead of marking done — advance the date
+    r.date = nextOccurrence(r.date, r.repeatEvery, r.repeatUnit);
+    r.done = false;
+  } else {
+    r.done = true;
+  }
+  save();
+  renderReminders();
+}
+
+function deleteReminder(id) {
+  state.reminders = state.reminders.filter(x => x.id !== id);
+  save();
+  renderReminders();
+}
+
+// ── SCHEDULE ───────────────────────────────────────────
+function openAddSchedule() {
+  ['sc-week','sc-water','sc-ph','sc-ec','sc-nutes','sc-repeat'].forEach(f => document.getElementById(f).value = '');
+  document.getElementById('sc-stage').value = 'veg';
+  document.getElementById('sc-repeat-unit').value = 'days';
+  openModal('modal-schedule');
+}
+
+function saveScheduleEntry() {
+  const repeatEvery = parseInt(document.getElementById('sc-repeat').value) || 0;
+  const repeatUnit  = document.getElementById('sc-repeat-unit').value;
+  state.schedule.push({
+    id: uid(),
+    week:      parseInt(document.getElementById('sc-week').value) || 1,
+    stage:     document.getElementById('sc-stage').value,
+    water:     document.getElementById('sc-water').value,
+    ph:        document.getElementById('sc-ph').value,
+    ec:        document.getElementById('sc-ec').value,
+    nutrients: document.getElementById('sc-nutes').value.trim(),
+    repeatEvery,
+    repeatUnit,
+  });
+  state.schedule.sort((a,b) => a.week - b.week);
+  save();
+  closeModal('modal-schedule');
+  renderSchedule();
+}
+
+function renderSchedule() {
+  const tbody = document.getElementById('schedule-tbody');
+  if (!state.schedule.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px;">No schedule entries yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.schedule.map(s => {
+    const repeatLabel = s.repeatEvery ? `↻ ${s.repeatEvery} ${s.repeatUnit}` : '—';
+    return `<tr>
+      <td>${s.week}</td>
+      <td><span class="stage-badge ${s.stage}">${s.stage.charAt(0).toUpperCase() + s.stage.slice(1)}</span></td>
+      <td>${s.water || '—'}</td>
+      <td style="color:var(--text2)">${s.nutrients || '—'}</td>
+      <td>${s.ph || '—'}</td>
+      <td>${s.ec || '—'}</td>
+      <td style="color:var(--text3);font-size:11px">${repeatLabel}</td>
+      <td><button class="btn-icon" onclick="deleteSchedule('${s.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteSchedule(id) {
+  state.schedule = state.schedule.filter(x => x.id !== id);
+  save();
+  renderSchedule();
+}
+
+// ── PHOTOS ─────────────────────────────────────────────
+function triggerPhotoUpload() {
+  document.getElementById('photo-upload').click();
+}
+
+function handlePhotoUpload(evt) {
+  const file = evt.target.files[0];
+  if (!file || !currentPlantId) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const p = state.plants.find(x => x.id === currentPlantId);
+    if (p) {
+      if (!p.photos) p.photos = [];
+      p.photos.push(e.target.result);
+      save();
+      renderDetail(currentPlantId);
+    }
+  };
+  reader.readAsDataURL(file);
+  evt.target.value = '';
+}
+
+// Wire file input here after function is defined
+document.getElementById('photo-upload').addEventListener('change', handlePhotoUpload);
+
+// ── EXPORT ─────────────────────────────────────────────
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `growlog_${today()}.json`;
+  a.click();
+}
+
+// ── MODAL HELPERS ──────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) el.classList.remove('open');
+  });
+});
+
+// ── SEED DATA (first run) ──────────────────────────────
+function seedIfEmpty() {
+  if (state.plants.length > 0) return;
+  state.plants = [
+    {
+      id: 'P-01',
+      name: 'P-01',
+      strain: 'White Widow',
+      stage: 'flower',
+      germDate: (() => { const d = new Date(); d.setDate(d.getDate()-42); return d.toISOString().split('T')[0]; })(),
+      lightCycle: '12/12',
+      medium: 'coco',
+      potSize: '11',
+      temp: 25,
+      humidity: 52,
+      ph: 6.1,
+      ec: 1.6,
+      moisture: 58,
+      concerns: '',
+      photos: [],
+      journal: [
+        { date: today(), text: 'Day 42. Trichomes looking frosty. Strong lateral growth after last LST session.', tags: ['trained'] }
+      ],
+      training: [
+        { date: (() => { const d = new Date(); d.setDate(d.getDate()-14); return d.toISOString().split('T')[0]; })(), type: 'LST', note: 'Tied down main cola, opened canopy.' }
+      ],
+    },
+    {
+      id: 'P-02',
+      name: 'P-02',
+      strain: 'Northern Lights',
+      stage: 'veg',
+      germDate: (() => { const d = new Date(); d.setDate(d.getDate()-21); return d.toISOString().split('T')[0]; })(),
+      lightCycle: '18/6',
+      medium: 'soil',
+      potSize: '7',
+      temp: 23,
+      humidity: 62,
+      ph: 6.4,
+      ec: 1.1,
+      moisture: 72,
+      concerns: 'Slight yellowing on lower fan leaves — possible N deficiency.',
+      photos: [],
+      journal: [],
+      training: [],
+    },
+  ];
+  save();
+}
+
+// ── INIT ───────────────────────────────────────────────
+load();
+seedIfEmpty();
+checkLock();
+renderOverview();
+</script>
+</body>
+</html>
